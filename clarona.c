@@ -1,7 +1,7 @@
 /*
  * RDSEED & RDRAND Character Device Driver
  *
- * Copyright (C) 2017 by Mete Balci <mete.balci@antelabs.com>
+ * Copyright (C) 2017 by Mete Balci <info@metebalci.com>
  *
  */
 
@@ -21,7 +21,7 @@
 #define MINOR_RDRAND 2
 
 MODULE_LICENSE ("GPL");
-MODULE_AUTHOR ("Mete Balci <mete.balci@antelabs.com>");
+MODULE_AUTHOR ("Mete Balci <info@metebalci.com>");
 MODULE_DESCRIPTION ("RDSEED & RDRAND Character Device Driver");
 MODULE_VERSION ("0.1");
 
@@ -87,26 +87,26 @@ is_rdseed_available (void)
 }
 
 static int __init
-antelabs_clarona_init (void)
+clarona_init (void)
 {
 
   size_t sizeOfUnsignedLong;
   int rdseed_available, rdrand_available;
 
-  printk (KERN_INFO "antelabs-clarona: Initializing...\n");
+  printk (KERN_INFO "clarona: Initializing...\n");
 
   rdseed_available = is_rdseed_available ();
   rdrand_available = is_rdrand_available ();
 
-  printk (KERN_INFO "antelabs-clarona: rdseed available: %s\n",
+  printk (KERN_INFO "clarona: rdseed available: %s\n",
 	  rdseed_available ? "yes" : "no");
-  printk (KERN_INFO "antelabs-clarona: rdrand available: %s\n",
+  printk (KERN_INFO "clarona: rdrand available: %s\n",
 	  rdrand_available ? "yes" : "no");
 
   if (!rdseed_available && !rdrand_available)
     {
       printk (KERN_ALERT
-	      "antelabs-clarona: Neither rdrand nor rdseed is available\n");
+	      "clarona: Neither rdrand nor rdseed is available\n");
       return -1;
     }
 
@@ -116,13 +116,13 @@ antelabs_clarona_init (void)
   if (majorNumber < 0)
     {
       printk (KERN_ALERT
-	      "antelabs-clarona: Failed to register a major number\n");
+	      "clarona: Failed to register a major number\n");
       return majorNumber;
     }
   else
     {
       printk (KERN_INFO
-	      "antelabs-clarona: Registered with major number: %d\n",
+	      "clarona: Registered with major number: %d\n",
 	      majorNumber);
     }
 
@@ -132,12 +132,12 @@ antelabs_clarona_init (void)
     {
       unregister_chrdev (majorNumber, DEVICE_NAME);
       printk (KERN_ALERT
-	      "antelabs-clarona: Failed to register device class\n");
+	      "clarona: Failed to register device class\n");
       return PTR_ERR (charClass);
     }
   else
     {
-      printk (KERN_INFO "antelabs-clarona: Class registered correctly\n");
+      printk (KERN_INFO "clarona: Class registered correctly\n");
     }
 
   if (rdseed_available)
@@ -153,19 +153,19 @@ antelabs_clarona_init (void)
 	  class_destroy (charClass);
 	  unregister_chrdev (majorNumber, DEVICE_NAME);
 	  printk (KERN_ALERT
-		  "antelabs-clarona: Failed to create the rdseed device\n");
+		  "clarona: Failed to create the rdseed device\n");
 	  return PTR_ERR (rdseedDevice);
 	}
       else
 	{
 	  printk (KERN_INFO
-		  "antelabs-clarona: rdseed device created (%d,%d)\n",
+		  "clarona: rdseed device created (%d,%d)\n",
 		  majorNumber, MINOR_RDSEED);
 	}
     }
   else
     {
-      printk (KERN_WARNING "antelabs-clarona: rdseed is not available");
+      printk (KERN_WARNING "clarona: rdseed is not available");
     }
 
   if (rdrand_available)
@@ -185,57 +185,57 @@ antelabs_clarona_init (void)
 	  class_destroy (charClass);
 	  unregister_chrdev (majorNumber, DEVICE_NAME);
 	  printk (KERN_ALERT
-		  "antelabs-clarona: Failed to create the rdrand device\n");
+		  "clarona: Failed to create the rdrand device\n");
 	  return PTR_ERR (rdseedDevice);
 	}
       else
 	{
 	  printk (KERN_INFO
-		  "antelabs-clarona: rdrand device created (%d,%d)\n",
+		  "clarona: rdrand device created (%d,%d)\n",
 		  majorNumber, MINOR_RDRAND);
 	}
 
     }
   else
     {
-      printk (KERN_WARNING "antelabs-clarona: rdrand is not available");
+      printk (KERN_WARNING "clarona: rdrand is not available");
     }
 
   sizeOfUnsignedLong = sizeof (unsigned long);
 
-  printk (KERN_INFO "antelabs-clarona: sizeof(unsigned long)=%lu\n",
+  printk (KERN_INFO "clarona: sizeof(unsigned long)=%lu\n",
 	  sizeof (unsigned long));
 
   if (sizeOfUnsignedLong == 8)
     {
       // rdseed and rdrand output is maximum 8 bytes, it is the best if we always use this
       printk (KERN_INFO
-	      "antelabs-clarona: 8 is optimum and good for operation\n");
+	      "clarona: 8 is optimum and good for operation\n");
     }
   else if (sizeOfUnsignedLong < 8)
     {
       // in this case, I guess asm code in rd_dev_read runs but not sure what happens
       printk (KERN_INFO
-	      "antelabs-clarona: <8 is not optimum, maybe harmful to operation\n");
+	      "clarona: <8 is not optimum, maybe harmful to operation\n");
       return -1;
     }
   else if (sizeOfUnsignedLong > 8)
     {
       // in this case, probably asm code in rd_dev_read fails
       printk (KERN_INFO
-	      "antelabs-clarona: >8 is not optimum, potentially harmful to operation\n");
+	      "clarona: >8 is not optimum, potentially harmful to operation\n");
       return -1;
     }
 
-  printk (KERN_INFO "antelabs-clarona: Initialization done.\n");
+  printk (KERN_INFO "clarona: Initialization done.\n");
 
   return 0;
 }
 
 static void __exit
-antelabs_clarona_exit (void)
+clarona_exit (void)
 {
-  printk (KERN_INFO "antelabs-clarona: Exiting...\n");
+  printk (KERN_INFO "clarona: Exiting...\n");
 
   device_destroy (charClass, MKDEV (majorNumber, MINOR_RDRAND));
   device_destroy (charClass, MKDEV (majorNumber, MINOR_RDSEED));
@@ -245,7 +245,7 @@ antelabs_clarona_exit (void)
 
   unregister_chrdev (majorNumber, DEVICE_NAME);
 
-  printk (KERN_INFO "antelabs-clarona: Exit done.\n");
+  printk (KERN_INFO "clarona: Exit done.\n");
 }
 
 static int
@@ -299,15 +299,15 @@ rd_dev_read (int opId, struct file *filep, char *buffer, size_t len,
       return 0;
     }
 
-  // printk (KERN_DEBUG "antelabs-clarona: %s ret=%lx\n", op, randout);
-  // printk (KERN_DEBUG "antelabs-clarona: %s flg=0x%x\n", op, flag);
+  // printk (KERN_DEBUG "clarona: %s ret=%lx\n", op, randout);
+  // printk (KERN_DEBUG "clarona: %s flg=0x%x\n", op, flag);
 
   if (flag == 1)
     {
 
       size_t lencopied;
 
-      // printk (KERN_DEBUG "antelabs-clarona: %s return is valid", op);
+      // printk (KERN_DEBUG "clarona: %s return is valid", op);
 
       if (len > sizeof (unsigned long))
 	{
@@ -319,7 +319,7 @@ rd_dev_read (int opId, struct file *filep, char *buffer, size_t len,
 	}
 
       // printk (KERN_DEBUG
-	    //  "antelabs-clarona: copying %lu bytes to user space\n",
+	    //  "clarona: copying %lu bytes to user space\n",
 	    //  lencopied);
 
       if (copy_to_user (buffer, ((char *) &randout), lencopied))
@@ -334,7 +334,7 @@ rd_dev_read (int opId, struct file *filep, char *buffer, size_t len,
     {
 
       printk (KERN_WARNING
-	      "antelabs-clarona: %s return is invalid, flag=0x%x\n", op,
+	      "clarona: %s return is invalid, flag=0x%x\n", op,
 	      flag);
 
       return 0;
@@ -357,5 +357,5 @@ rdrand_dev_read (struct file *filep, char *buffer, size_t len,
   return rd_dev_read (1, filep, buffer, len, offset);
 }
 
-module_init (antelabs_clarona_init);
-module_exit (antelabs_clarona_exit);
+module_init (clarona_init);
+module_exit (clarona_exit);
